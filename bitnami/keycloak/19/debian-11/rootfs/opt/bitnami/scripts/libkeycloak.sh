@@ -132,10 +132,10 @@ keycloak_configure_database() {
     jdbc_params="$(echo "$KEYCLOAK_JDBC_PARAMS" | sed -E '/^$|^\&.+$/!s/^/\&/;s/\&/\\&/g')"
 
     info "Configuring database settings"
-    keycloak_conf_set "db" "postgres"
+    keycloak_conf_set "db" "mssql"
     keycloak_conf_set "db-username" "$KEYCLOAK_DATABASE_USER"
     keycloak_conf_set "db-password" "$KEYCLOAK_DATABASE_PASSWORD"
-    keycloak_conf_set "db-url" "jdbc:postgresql://${KEYCLOAK_DATABASE_HOST}:${KEYCLOAK_DATABASE_PORT}/${KEYCLOAK_DATABASE_NAME}?currentSchema=${KEYCLOAK_DATABASE_SCHEMA}${jdbc_params}"
+    keycloak_conf_set "db-url" "jdbc:sqlserver://${KEYCLOAK_DATABASE_HOST}:${KEYCLOAK_DATABASE_PORT};databaseName=${KEYCLOAK_DATABASE_NAME};${jdbc_params}"
 }
 
 ########################
@@ -277,12 +277,12 @@ keycloak_configure_spi_tls() {
 keycloak_initialize() {
     # Clean to avoid issues when running docker restart
     # Wait for database
-    info "Trying to connect to PostgreSQL server $KEYCLOAK_DATABASE_HOST..."
+    info "Trying to connect to  MS SQL server $KEYCLOAK_DATABASE_HOST..."
     if ! retry_while "wait-for-port --host $KEYCLOAK_DATABASE_HOST --timeout 10 $KEYCLOAK_DATABASE_PORT" "$KEYCLOAK_INIT_MAX_RETRIES"; then
         error "Unable to connect to host $KEYCLOAK_DATABASE_HOST"
         exit 1
     else
-        info "Found PostgreSQL server listening at $KEYCLOAK_DATABASE_HOST:$KEYCLOAK_DATABASE_PORT"
+        info "Found MS SQL server listening at $KEYCLOAK_DATABASE_HOST:$KEYCLOAK_DATABASE_PORT"
     fi
 
     if ! is_dir_empty "$KEYCLOAK_MOUNTED_CONF_DIR"; then
